@@ -1,0 +1,71 @@
+name: odoo-iot-minimal
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "odoo", "-d", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 15s
+
+  odoo:
+    image: odoo:20.0-20261015
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8070:8069"
+    environment:
+      HOST: db
+      PORT: "5432"
+      USER: odoo
+      PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - type: bind
+        source: ./.runtime/odoo.conf
+        target: /etc/odoo/odoo.conf
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./addons
+        target: /mnt/extra-addons
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import urllib.request; r = urllib.request.urlopen('http://127.0.0.1:8069/web/database/selector', timeout=5); assert r.status == 200"
+      interval: 5s
+      timeout: 8s
+      retries: 30
+      start_period: 20s
+
+secrets:
+  postgres_password:
+    file: ./.runtime/postgres-password.txt
+
+volumes:
+  postgres_data:
+    name: odoo_iot_minimal_postgres
+  odoo_data:
+    name: odoo_iot_minimal_filestore

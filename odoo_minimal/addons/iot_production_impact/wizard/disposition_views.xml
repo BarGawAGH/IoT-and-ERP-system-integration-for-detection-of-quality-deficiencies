@@ -1,0 +1,17 @@
+<odoo>
+    <record id="view_disposition_form" model="ir.ui.view">
+        <field name="name">iot.impact.disposition.form</field>
+        <field name="model">iot.impact.disposition</field>
+        <field name="arch" type="xml">
+            <form string="Record production disposition">
+                <div class="alert alert-info" role="alert">Simulation decisions do not establish the quality of historical products. The operation creates real demonstration ERP documents in this test database.</div>
+                <group><field name="case_id"/><field name="evidence_mode"/><field name="operation"/>
+                    <field name="planned_start" invisible="operation not in ['start_rework', 'plan_replacement', 'reschedule']"/>
+                    <field name="reason" placeholder="Record the assumed scenario decision and its reason."/>
+                </group>
+                <footer><button name="action_record" type="object" string="Record disposition" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/></footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,53 @@
+<odoo>
+    <record id="view_event_list" model="ir.ui.view">
+        <field name="name">iot.poc.event.list</field><field name="model">iot.poc.event</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false" decoration-warning="triage == 'review_required'">
+                <field name="cycle_label"/><field name="source_kind"/><field name="sample_count"/><field name="source_is_ok"/>
+                <field name="triage" widget="badge"/><field name="production_id"/><field name="lot_id"/>
+                <field name="review_state"/><field name="review_outcome"/><field name="independent_quality" widget="badge"/><field name="received_at"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_event_form" model="ir.ui.view">
+        <field name="name">iot.poc.event.form</field><field name="model">iot.poc.event</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <header><button name="action_open_review" type="object" string="Review / correct" class="btn-primary" groups="iot_poc_community.group_reviewer"/><field name="review_state" widget="statusbar"/></header>
+                <sheet>
+                    <div class="alert alert-info" role="alert">Historical replay. The notebook flag reflects sample count (at least 21); it does not prove conformity or a defect. Independent quality remains unverified until an explicit, evidenced independent inspection.</div>
+                    <group>
+                        <group string="Source classification"><field name="cycle_label"/><field name="sample_count"/><field name="source_is_ok"/><field name="rule_version"/><field name="triage"/><field name="source_kind"/></group>
+                        <group string="Human assessment"><field name="review_outcome"/><field name="independent_quality"/><field name="last_evidence_kind"/><field name="reviewed_by"/><field name="reviewed_at"/><field name="review_revision"/></group>
+                    </group>
+                    <group string="Demonstration ERP context"><field name="machine_id"/><field name="mapping_id"/><field name="production_id"/><field name="product_id"/><field name="lot_id"/><field name="company_id" groups="base.group_multi_company"/></group>
+                    <notebook>
+                        <page string="Source and provenance">
+                            <group><field name="event_id"/><field name="session_id"/><field name="dataset_filename"/><field name="dataset_sha256"/><field name="payload_hash"/><field name="source_start"/><field name="source_end"/><field name="nominal_sampling_interval_seconds"/><field name="emitted_at"/><field name="received_at"/></group>
+                            <p>Source timezone is unknown. Repeated timestamps and original row order are preserved; fractional sample times have not been reconstructed.</p>
+                            <field name="mapping_snapshot"/>
+                        </page>
+                        <page string="Samples (original order)"><field name="samples_json"/></page>
+                        <page string="Canonical payload"><field name="canonical_payload"/></page>
+                        <page string="Review history">
+                            <field name="audit_ids" readonly="True"><list create="false" edit="false" delete="false"><field name="revision"/><field name="recorded_at"/><field name="reviewer_id"/><field name="evidence_kind"/><field name="outcome_before"/><field name="outcome_after"/><field name="independent_after"/><field name="notes"/><field name="evidence_ref"/><field name="correction_reason"/></list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_event_search" model="ir.ui.view">
+        <field name="name">iot.poc.event.search</field><field name="model">iot.poc.event</field>
+        <field name="arch" type="xml"><search><field name="event_id"/><field name="cycle_label"/><field name="production_id"/>
+            <filter name="pending" string="Pending review" domain="[('review_state','=','pending')]"/>
+            <filter name="triage" string="Count flag requires review" domain="[('triage','=','review_required')]"/>
+            <filter name="unverified" string="Independent quality unverified" domain="[('independent_quality','=','unverified')]"/>
+        </search></field>
+    </record>
+    <record id="action_events" model="ir.actions.act_window"><field name="name">Events</field><field name="res_model">iot.poc.event</field><field name="view_mode">list,form</field></record>
+    <menuitem id="menu_iot_root" name="IoT Prototype" sequence="25" groups="iot_poc_community.group_reviewer"/>
+    <menuitem id="menu_events" name="Events" parent="menu_iot_root" action="action_events" sequence="10"/>
+    <menuitem id="menu_machines" name="Machines" parent="menu_iot_root" action="action_machines" sequence="20" groups="iot_poc_community.group_manager"/>
+    <menuitem id="menu_mappings" name="Mappings" parent="menu_iot_root" action="action_mappings" sequence="30" groups="iot_poc_community.group_manager"/>
+</odoo>

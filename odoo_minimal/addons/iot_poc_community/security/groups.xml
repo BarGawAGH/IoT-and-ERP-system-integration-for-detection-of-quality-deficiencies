@@ -1,0 +1,34 @@
+<odoo>
+    <record id="category_iot_prototype" model="ir.module.category">
+        <field name="name">IoT Prototype</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="privilege_bridge" model="res.groups.privilege">
+        <field name="name">IoT integration</field>
+        <field name="category_id" ref="category_iot_prototype"/>
+    </record>
+    <record id="privilege_review" model="res.groups.privilege">
+        <field name="name">IoT human review</field>
+        <field name="category_id" ref="category_iot_prototype"/>
+    </record>
+    <record id="group_bridge" model="res.groups">
+        <field name="name">Integration bridge</field>
+        <field name="privilege_id" ref="privilege_bridge"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">May ingest replay events and read result receipts through the dedicated API. Cannot review, edit source data or configure mappings, even if another role is added.</field>
+    </record>
+    <record id="group_reviewer" model="res.groups">
+        <field name="name">Reviewer</field>
+        <field name="privilege_id" ref="privilege_review"/>
+        <field name="sequence">10</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Reads events and appends evidence-based reviews or explicit corrections. Workflow tests do not verify physical quality.</field>
+    </record>
+    <record id="group_manager" model="res.groups">
+        <field name="name">Prototype manager</field>
+        <field name="privilege_id" ref="privilege_review"/>
+        <field name="sequence">20</field>
+        <field name="implied_ids" eval="[(4, ref('group_reviewer'))]"/>
+        <field name="comment">Maintains unused demonstration mappings and can review events. Does not imply the integration bridge role.</field>
+    </record>
+</odoo>

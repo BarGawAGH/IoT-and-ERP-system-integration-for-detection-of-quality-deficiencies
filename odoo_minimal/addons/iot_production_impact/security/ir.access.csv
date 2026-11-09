@@ -1,0 +1,15 @@
+id,name,model_id,group_id/id,operation,domain
+impact_case_company,Production case company restriction,iot.impact.case,,crud,"[('company_id', 'in', company_ids)]"
+impact_audit_company,Decision audit company restriction,iot.impact.audit,,crud,"[('company_id', 'in', company_ids)]"
+impact_material_company,Material effect company restriction,iot.impact.material,,crud,"[('company_id', 'in', company_ids)]"
+impact_config_company,Impact configuration company restriction,iot.impact.configuration,,crud,"[('company_id', 'in', company_ids)]"
+impact_wizard_company,Disposition wizard company restriction,iot.impact.disposition,,crud,"[('company_id', 'in', company_ids)]"
+impact_wizard_owner,Disposition wizard owner restriction,iot.impact.disposition,,crud,"[('create_uid', '=', user.id)]"
+access_impact_case_reviewer,Reviewer reads production cases,iot.impact.case,iot_poc_community.group_reviewer,r,
+access_impact_case_manager,Manager creates and acts on production cases,iot.impact.case,group_impact_manager,cru,
+access_impact_audit_reviewer,Reviewer reads immutable decision audits,iot.impact.audit,iot_poc_community.group_reviewer,r,
+access_impact_audit_manager,Manager appends decision audits,iot.impact.audit,group_impact_manager,cr,
+access_impact_material_reviewer,Reviewer reads material snapshots,iot.impact.material,iot_poc_community.group_reviewer,r,
+access_impact_material_manager,Manager creates material snapshots,iot.impact.material,group_impact_manager,cr,
+access_impact_config_manager,Manager maintains impact activation,iot.impact.configuration,group_impact_manager,cru,
+access_impact_wizard_manager,Manager uses own disposition wizard,iot.impact.disposition,group_impact_manager,crud,

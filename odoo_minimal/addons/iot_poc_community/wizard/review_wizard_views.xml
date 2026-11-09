@@ -1,0 +1,30 @@
+<odoo>
+    <record id="view_review_wizard_form" model="ir.ui.view">
+        <field name="name">iot.poc.review.wizard.form</field>
+        <field name="model">iot.poc.review.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Review historical replay">
+                <div class="alert alert-info" role="alert" invisible="evidence_kind != 'workflow_test'">
+                    Workflow test only. Pass or Fail tests the review process and leaves independent quality unverified.
+                </div>
+                <div class="alert alert-warning" role="alert" invisible="evidence_kind != 'independent_inspection'">
+                    Select independent inspection only after examining the physical part or a valid independent inspection record. Cite that evidence below.
+                </div>
+                <group>
+                    <field name="event_id" options="{'no_open': True}"/>
+                    <field name="company_id" invisible="True"/>
+                    <field name="expected_revision" invisible="True"/>
+                    <field name="evidence_kind"/>
+                    <field name="outcome"/>
+                    <field name="notes" placeholder="Explain what was reviewed and what the evidence supports."/>
+                    <field name="evidence_ref" placeholder="Reference to a workflow test protocol or an actual inspection record."/>
+                    <field name="correction_reason" invisible="expected_revision == 0" required="expected_revision &gt; 0"/>
+                </group>
+                <footer>
+                    <button name="action_submit" type="object" string="Save review" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

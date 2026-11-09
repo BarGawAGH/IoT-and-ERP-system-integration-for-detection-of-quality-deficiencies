@@ -1,0 +1,117 @@
+<odoo>
+    <record id="view_impact_case_list" model="ir.ui.view">
+        <field name="name">iot.impact.case.list</field><field name="model">iot.impact.case</field>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" decoration-warning="state in ['held', 'reinspection']">
+                <field name="code"/><field name="evidence_mode"/><field name="source_cycle_label" string="Source cycle"/>
+                <field name="production_id"/><field name="lot_id"/><field name="state" widget="badge"/>
+                <field name="planned_start"/><field name="replacement_production_id" optional="show"/>
+                <field name="purchase_order_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_impact_case_form" model="ir.ui.view">
+        <field name="name">iot.impact.case.form</field><field name="model">iot.impact.case</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" edit="false">
+                <header><button name="action_open_disposition" type="object" string="Record disposition" class="btn-primary" groups="iot_production_impact.group_impact_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,held,rework,reinspection,released,scrapped,replacement_planned"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="evidence_mode != 'simulation'">Explicit workflow simulation. Inventory movements, rework consumption and planning documents are demonstration transactions. No independent inspection of a historical product is claimed.</div>
+                    <div class="alert alert-warning" role="alert" invisible="evidence_mode != 'historical'">Historical replay remains unresolved. The original measurements and independent quality assessment are preserved. A workflow-only review does not release this manufacturing hold.</div>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <group string="Case and source"><field name="code"/><field name="evidence_mode"/><field name="source_event_id"/>
+                            <field name="source_cycle_label"/><field name="source_review_outcome"/><field name="independent_quality"/>
+                            <field name="scenario_description"/></group>
+                        <group string="Manufacturing and disposition"><field name="production_id"/><field name="product_id"/><field name="lot_id"/>
+                            <field name="quantity"/><field name="completion_hold"/><field name="hold_reason"/>
+                            <field name="responsible_user_id"/><field name="activity_id"/><field name="held_at"/><field name="released_at"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Production planning">
+                            <group><group><field name="original_planned_start"/><field name="planned_start"/><field name="replacement_production_id"/><field name="purchase_order_id"/></group>
+                                <group><field name="warehouse_id"/><field name="supplier_id"/><field name="rework_product_id"/><field name="rework_quantity"/></group></group>
+                            <p>The replacement manufacturing order is a planned demonstration order. A shortage RFQ remains an unsent draft. Planned dates are explicit scenario assumptions, not an optimised production schedule.</p>
+                        </page>
+                        <page string="Product disposition">
+                            <group><group><field name="quarantine_location_id"/><field name="quarantine_quantity"/>
+                                <field name="rework_location_id"/><field name="rework_stock_quantity"/></group>
+                                <group><field name="available_location_id"/><field name="available_quantity"/><field name="consumption_location_id"/></group></group>
+                            <field name="move_ids" readonly="True"><list create="false" delete="false"><field name="reference"/><field name="iot_impact_action_key"/>
+                                <field name="product_id"/><field name="quantity"/><field name="uom_id"/><field name="location_id"/>
+                                <field name="location_dest_id"/><field name="is_scrap"/><field name="state"/></list></field>
+                        </page>
+                        <page string="Material impact">
+                            <field name="material_ids" readonly="True"><list create="false" delete="false"><field name="phase"/><field name="product_id"/>
+                                <field name="required_quantity"/><field name="available_before"/><field name="reserved_quantity"/>
+                                <field name="shortage_quantity"/><field name="consumed_quantity"/><field name="uom_id"/><field name="move_id"/></list></field>
+                            <p>Material values are snapshots at the recorded action. Rework consumption is posted stock usage; replacement requirements and reservations concern an unfinished order.</p>
+                        </page>
+                        <page string="Decision history">
+                            <field name="audit_ids" readonly="True"><list create="false" delete="false"><field name="recorded_at"/><field name="action_key"/>
+                                <field name="actor_id"/><field name="evidence_mode"/><field name="state_before"/><field name="state_after"/>
+                                <field name="reason"/></list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_impact_case_search" model="ir.ui.view">
+        <field name="name">iot.impact.case.search</field><field name="model">iot.impact.case</field>
+        <field name="arch" type="xml"><search><field name="code"/><field name="production_id"/><field name="source_cycle_label"/>
+            <filter name="historical" string="Historical unresolved" domain="[('evidence_mode','=','historical')]"/>
+            <filter name="simulation" string="Workflow simulations" domain="[('evidence_mode','=','simulation')]"/>
+            <separator/><filter name="held" string="On hold" domain="[('state','=','held')]"/>
+            <filter name="replacement" string="Replacement planned" domain="[('state','=','replacement_planned')]"/>
+            <separator/><filter name="group_state" string="Disposition" context="{'group_by':'state'}"/>
+            <filter name="group_evidence" string="Evidence mode" context="{'group_by':'evidence_mode'}"/>
+        </search></field>
+    </record>
+    <record id="view_impact_audit_form" model="ir.ui.view">
+        <field name="name">iot.impact.audit.form</field><field name="model">iot.impact.audit</field>
+        <field name="arch" type="xml"><form create="false" edit="false" delete="false"><sheet>
+            <group><field name="case_id"/><field name="action_key"/><field name="recorded_at"/><field name="actor_id"/>
+                <field name="evidence_mode"/><field name="state_before"/><field name="state_after"/><field name="reason"/></group>
+            <field name="details_json"/>
+        </sheet></form></field>
+    </record>
+    <record id="view_impact_material_list" model="ir.ui.view">
+        <field name="name">iot.impact.material.list</field><field name="model">iot.impact.material</field>
+        <field name="arch" type="xml"><list create="false" delete="false"><field name="case_id"/><field name="phase"/><field name="product_id"/>
+            <field name="required_quantity"/><field name="available_before"/><field name="reserved_quantity"/>
+            <field name="shortage_quantity"/><field name="consumed_quantity"/><field name="uom_id"/><field name="move_id"/>
+        </list></field>
+    </record>
+    <record id="view_impact_material_form" model="ir.ui.view">
+        <field name="name">iot.impact.material.form</field><field name="model">iot.impact.material</field>
+        <field name="arch" type="xml"><form create="false" edit="false" delete="false"><sheet><group>
+            <field name="case_id"/><field name="phase"/><field name="product_id"/><field name="uom_id"/>
+            <field name="required_quantity"/><field name="available_before"/><field name="reserved_quantity"/>
+            <field name="shortage_quantity"/><field name="consumed_quantity"/><field name="move_id"/>
+        </group></sheet></form></field>
+    </record>
+    <record id="view_impact_config_form" model="ir.ui.view">
+        <field name="name">iot.impact.configuration.form</field><field name="model">iot.impact.configuration</field>
+        <field name="arch" type="xml"><form><header><button name="synchronize_historical" type="object" string="Synchronize historical holds"/></header><sheet><group>
+            <field name="company_id"/><field name="active"/><field name="responsible_user_id"/><field name="warehouse_id"/>
+            <field name="available_location_id"/><field name="quarantine_location_id"/><field name="rework_location_id"/><field name="consumption_location_id"/>
+        </group><p>When active, accepted historical events requiring review create one unresolved case and one internal activity. The bridge cannot record stock dispositions.</p></sheet></form></field>
+    </record>
+    <record id="view_impact_config_list" model="ir.ui.view">
+        <field name="name">iot.impact.configuration.list</field><field name="model">iot.impact.configuration</field>
+        <field name="arch" type="xml"><list><field name="company_id"/><field name="active"/><field name="responsible_user_id"/><field name="warehouse_id"/></list></field>
+    </record>
+    <record id="action_impact_cases" model="ir.actions.act_window"><field name="name">Production impact cases</field><field name="res_model">iot.impact.case</field><field name="view_mode">list,form</field></record>
+    <record id="action_impact_planning" model="ir.actions.act_window"><field name="name">Demonstration production planning</field><field name="res_model">iot.impact.case</field><field name="view_mode">list,form</field><field name="domain">[('evidence_mode','=','simulation')]</field></record>
+    <record id="action_impact_materials" model="ir.actions.act_window"><field name="name">Material impact</field><field name="res_model">iot.impact.material</field><field name="view_mode">list,form</field></record>
+    <record id="action_impact_configuration" model="ir.actions.act_window"><field name="name">Production impact activation</field><field name="res_model">iot.impact.configuration</field><field name="view_mode">list,form</field></record>
+    <menuitem id="menu_impact_root" name="Production Impact" sequence="26" groups="iot_poc_community.group_reviewer"/>
+    <menuitem id="menu_impact_cases" name="Cases" parent="menu_impact_root" action="action_impact_cases" sequence="10"/>
+    <menuitem id="menu_impact_planning" name="Planning" parent="menu_impact_root" action="action_impact_planning" sequence="20"/>
+    <menuitem id="menu_impact_materials" name="Material Impact" parent="menu_impact_root" action="action_impact_materials" sequence="30"/>
+    <menuitem id="menu_impact_configuration" name="Configuration" parent="menu_impact_root" action="action_impact_configuration" sequence="90" groups="iot_production_impact.group_impact_manager"/>
+</odoo>

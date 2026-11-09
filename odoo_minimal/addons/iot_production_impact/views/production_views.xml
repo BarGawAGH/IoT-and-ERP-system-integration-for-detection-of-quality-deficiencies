@@ -1,0 +1,20 @@
+<odoo>
+    <record id="view_mrp_production_impact" model="ir.ui.view">
+        <field name="name">mrp.production.impact</field><field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside"><button name="action_open_iot_impact_cases" type="object" string="Production Impact" groups="iot_poc_community.group_reviewer"/></xpath>
+            <xpath expr="//sheet" position="inside"><group string="IoT production impact" groups="iot_poc_community.group_reviewer">
+                <field name="iot_impact_hold" readonly="True"/>
+                <div class="alert alert-warning" role="alert" invisible="not iot_impact_hold">Completion is held by an unresolved historical IoT case. A workflow-only review does not release the hold.</div>
+                <field name="iot_impact_origin_case_id" readonly="True"/>
+                <field name="iot_impact_case_ids" readonly="True"><list create="false" delete="false"><field name="code"/><field name="evidence_mode"/><field name="state"/><field name="hold_reason"/></list></field>
+            </group></xpath>
+        </field>
+    </record>
+    <record id="view_purchase_order_impact" model="ir.ui.view">
+        <field name="name">purchase.order.impact</field><field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml"><xpath expr="//sheet" position="inside"><group string="IoT planning origin" groups="iot_poc_community.group_reviewer"><field name="iot_impact_case_id" readonly="True"/></group></xpath></field>
+    </record>
+</odoo>

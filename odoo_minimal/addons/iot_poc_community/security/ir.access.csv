@@ -1,0 +1,16 @@
+id,name,model_id,group_id/id,operation,domain
+event_company,Replay event company restriction,iot.poc.event,,crud,"[('company_id', 'in', company_ids)]"
+review_company,Replay review company restriction,iot.poc.review,,crud,"[('company_id', 'in', company_ids)]"
+machine_company,Replay machine company restriction,iot.poc.machine,,crud,"[('company_id', 'in', company_ids)]"
+mapping_company,Replay mapping company restriction,iot.poc.mapping,,crud,"[('company_id', 'in', company_ids)]"
+wizard_company,Replay wizard company restriction,iot.poc.review.wizard,,crud,"[('company_id', 'in', company_ids)]"
+wizard_owner,Replay wizard owner restriction,iot.poc.review.wizard,,crud,"[('create_uid', '=', user.id)]"
+event_reviewer,Reviewer reads replay events,iot.poc.event,iot_poc_community.group_reviewer,r,
+review_reviewer,Reviewer reads immutable audit,iot.poc.review,iot_poc_community.group_reviewer,r,
+machine_reviewer,Reviewer reads demonstration aliases,iot.poc.machine,iot_poc_community.group_reviewer,r,
+mapping_reviewer,Reviewer reads demonstration mappings,iot.poc.mapping,iot_poc_community.group_reviewer,r,
+wizard_reviewer,Reviewer uses own review form,iot.poc.review.wizard,iot_poc_community.group_reviewer,crud,
+machine_manager,Manager maintains unused machine aliases,iot.poc.machine,iot_poc_community.group_manager,crud,
+mapping_manager,Manager maintains unused cycle mappings,iot.poc.mapping,iot_poc_community.group_manager,crud,
+mo_reviewer,Reviewer reads manufacturing context,mrp.production,iot_poc_community.group_reviewer,r,
+lot_reviewer,Reviewer reads lot context,stock.lot,iot_poc_community.group_reviewer,r,
